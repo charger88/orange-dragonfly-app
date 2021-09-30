@@ -32,6 +32,10 @@ class OrangeDragonflyApp {
         this._router.register(route.path, [route.method], { Controller: controller, action: route.action })
       }
     }
+    this._registeredCommands = {}
+    for (const command of this.commands) {
+      this._registeredCommands[command.commandName] = command
+    }
   }
 
   /**
@@ -92,6 +96,14 @@ class OrangeDragonflyApp {
    */
   get controllers () {
     return Helpers.loadClassesFromDirRecursively(path.join(this._dirname, 'controllers'))
+  }
+
+  /**
+   * List of available controllers
+   * @return {OrangeDragonflyController[]}
+   */
+  get commands () {
+    return Helpers.loadClassesFromDirRecursively(path.join(this._dirname, 'commands'))
   }
 
   /**
@@ -184,6 +196,27 @@ class OrangeDragonflyApp {
     await controller.run(route.route_object.action, route.params)
     this.accessLog(request, response)
     return response
+  }
+
+  /**
+   *
+   * @param {array} args
+   * @return {Promise<void>}
+   */
+  async processCommand (args) {
+    const fArgs = args.slice(2)
+    const name = fArgs.shift()
+    if (!name) {
+      throw new Error('Command name is not provided')
+    }
+    if (!this._registeredCommands[name]) {
+      throw new Error('Command not found')
+    }
+    await this.init()
+    const Command = this._registeredCommands[name]
+    const command = new Command(this)
+    await command.run(fArgs)
+    await this.unload()
   }
 
   /**

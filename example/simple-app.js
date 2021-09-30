@@ -1,4 +1,4 @@
-const { OrangeDragonflyApp, OrangeDragonflyController, OrangeDragonflyMiddleware } = require('./../index.js')
+const { OrangeDragonflyApp, OrangeDragonflyController, OrangeDragonflyMiddleware, OrangeDragonflyCommand } = require('./../index.js')
 
 class IndexController extends OrangeDragonflyController {
   async doGet () {
@@ -48,6 +48,12 @@ class BlockBotsMiddleware extends OrangeDragonflyMiddleware {
   }
 }
 
+class RandomCommand extends OrangeDragonflyCommand {
+  async run (args) {
+    console.log(Math.random() * (args[0] ? parseInt(args[0], 10) : 1))
+  }
+}
+
 class SimpleApp extends OrangeDragonflyApp {
   accessLog (request, response) {
     console.debug((new Date()).toISOString(), request.method, request.path, response.code)
@@ -67,6 +73,12 @@ class SimpleApp extends OrangeDragonflyApp {
     return [
       IndexController,
       ProductsController
+    ]
+  }
+
+  get commands () {
+    return [
+      RandomCommand
     ]
   }
 }
