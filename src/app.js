@@ -1,6 +1,6 @@
 const { OrangeDragonflyWebServer, OrangeDragonflyResponse } = require('orange-dragonfly-web-server')
 const { OrangeDragonflyRouter } = require('orange-dragonfly-router')
-const OrangeDragonflyORMModelToSQL = require('./../../orange-dragonfly-db-schema-to-sql') // require('orange-dragonfly-db-schema-to-sql')
+const OrangeDragonflyORMModelToSQL = require('orange-dragonfly-orm-model-to-sql')
 const OrangeDragonflyErrorController = require('./errors-controller')
 const OrangeDragonflyAbstractModel = require('orange-dragonfly-model')
 const { AbstractQuery } = require('orange-dragonfly-orm')

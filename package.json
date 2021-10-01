@@ -1,6 +1,6 @@
 {
   "name": "orange-dragonfly-app",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Orange.Dragofly.App - web application",
   "main": "index.js",
   "scripts": {
@@ -32,11 +32,12 @@
     "eslint-plugin-import": "^2.24.1",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^5.1.0",
-    "jest": "^27.2.3"
+    "jest": "^27.2.4"
   },
   "dependencies": {
     "orange-dragonfly-model": "^0.11.0",
     "orange-dragonfly-orm": "^0.7.30",
+    "orange-dragonfly-orm-model-to-sql": "^0.7.0",
     "orange-dragonfly-router": "^0.1.1",
     "orange-dragonfly-web-server": "^0.1.0"
   }
