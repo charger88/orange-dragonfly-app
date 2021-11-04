@@ -13,9 +13,9 @@ test('basic methods', () => {
   const routes = controller.routes
   expect(routes).toEqual([
     { method: 'get', path: '/test-controller-1', action: 'doGet' },
-    { method: 'post', path: '/test-controller-1', action: 'doPost' },
     { method: 'get', path: '/test-controller-1/{#id}', action: 'doGetId' },
     { method: 'patch', path: '/test-controller-1', action: 'doPatch' },
+    { method: 'post', path: '/test-controller-1', action: 'doPost' },
     { method: 'put', path: '/test-controller-1/{#id}', action: 'doPutId' }
   ])
 })
@@ -94,7 +94,7 @@ test('extra methods', () => {
   expect(routes).toEqual([
     { method: 'get', path: '/test-controller-5', action: 'doGet' },
     { method: 'get', path: '/test-controller-5/{#id}', action: 'doGetId' },
-    { method: 'get', path: '/test-controller-5/tests', action: 'doGetTests' },
-    { method: 'get', path: '/test-controller-5/{#id}/sub-test-5', action: 'doGetIdSubTest5' }
+    { method: 'get', path: '/test-controller-5/{#id}/sub-test-5', action: 'doGetIdSubTest5' },
+    { method: 'get', path: '/test-controller-5/tests', action: 'doGetTests' }
   ])
 })
