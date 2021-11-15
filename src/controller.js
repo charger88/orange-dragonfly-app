@@ -24,17 +24,30 @@ class OrangeDragonflyController {
    * @return {Promise<void>}
    */
   async run (action, params) {
-    if (await this.runMiddlewares(this.beforewares, params)) {
-      if (await this.runBeforeRequest(params)) {
-        const content = await this[action](params)
-        if (typeof content !== 'undefined') {
-          this.response.content = content
-        }
-        if (await this.runAfterRequest(params)) {
-          await this.runMiddlewares(this.afterwares, params)
+    try {
+      if (await this.runMiddlewares(this.beforewares, params)) {
+        if (await this.runBeforeRequest(params, action)) {
+          const content = await this[action](params)
+          if (typeof content !== 'undefined') {
+            this.response.content = content
+          }
+          if (await this.runAfterRequest(params, action)) {
+            await this.runMiddlewares(this.afterwares, params)
+          }
         }
       }
+    } catch (e) {
+      await this.handleError(e)
     }
+  }
+
+  /**
+   * Exceptions handler
+   * @param e
+   * @return {Promise<void>}
+   */
+  async handleError (e) {
+    throw e
   }
 
   /**
@@ -98,18 +111,20 @@ class OrangeDragonflyController {
   /**
    * Custom code to be invoked before controller's action
    * @param {object} params
+   * @param {string} action
    * @return {Promise<boolean>}
    */
-  async runBeforeRequest (params) {
+  async runBeforeRequest (params, action) {
     return true
   }
 
   /**
    * Custom code to be invoked after controller's action
    * @param {object} params
+   * @param {string} action
    * @return {Promise<boolean>}
    */
-  async runAfterRequest (params) {
+  async runAfterRequest (params, action) {
     return true
   }
 
