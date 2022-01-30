@@ -49,8 +49,8 @@ class BlockBotsMiddleware extends OrangeDragonflyMiddleware {
 }
 
 class RandomCommand extends OrangeDragonflyCommand {
-  async run (args) {
-    console.log(Math.random() * (args[0] ? parseInt(args[0], 10) : 1))
+  async action () {
+    this.c.line(Math.random() * (this.params['--max'] ? parseInt(this.params['--max'], 10) : 1))
   }
 }
 

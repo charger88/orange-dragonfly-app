@@ -1,27 +1,34 @@
 const { camelCaseToDashCase } = require('./helpers')
+const { OrangeCommand } = require('orange-command')
 
 /**
  * Orange Dragonfly console command
  * @abstract
  */
-class OrangeDragonflyCommand {
-  /**
-   *
-   * @param {OrangeDragonflyApp} app
-   */
-  constructor (app) {
-    this.app = app
-  }
+class OrangeDragonflyCommand extends OrangeCommand {
 
   /**
    * Command logic
    * @abstract
-   * @param {object} params
    * @return {Promise<void>}
    */
-  async run (params) {
+  async action () {
     throw new Error(`${this.constructor.name}.run should be overridden`)
   }
+
+  /**
+   * Runs the command
+   * @param {object?} params Invocation parameters (command line arguments will be used by default)
+   * @param {OrangeDragonflyApp} app Application
+   * @returns {Promise<OrangeCommand>}
+   */
+  static async run (params = null, app = null) {
+    const commandParams = params || this.commandLineArguments
+    const command = new this(commandParams)
+    command.app = app
+    return await command._runAction()
+  }
+
 
   /**
    * Name of the command. By default it is being generated based on commands's name (dash-case instead of camel-case).
@@ -34,6 +41,23 @@ class OrangeDragonflyCommand {
       name = name.slice(0, -7)
     }
     return camelCaseToDashCase(name)
+  }
+
+  /**
+   *
+   * @return {OrangeDragonflyApp}
+   */
+  get app () {
+    if (this._app) throw new Error('App is not defined')
+    return this._app
+  }
+
+  /**
+   *
+   * @param {OrangeDragonflyApp} app
+   */
+  set app (app) {
+    this._app = app
   }
 }
 

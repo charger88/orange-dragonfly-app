@@ -213,9 +213,7 @@ class OrangeDragonflyApp {
       throw new Error('Command not found')
     }
     await this.init()
-    const Command = this._registeredCommands[name]
-    const command = new Command(this)
-    await command.run(fArgs)
+    await this._registeredCommands[name].run(null, this)
     await this.unload()
   }
 
