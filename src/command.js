@@ -48,7 +48,7 @@ class OrangeDragonflyCommand extends OrangeCommand {
    * @return {OrangeDragonflyApp}
    */
   get app () {
-    if (this._app) throw new Error('App is not defined')
+    if (!this._app) throw new Error('App is not defined')
     return this._app
   }
 
