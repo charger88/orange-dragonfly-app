@@ -9,6 +9,9 @@ test('basic methods', () => {
     doGetId () {}
     doPatch () {}
     doPutId () {}
+    get shouldNotBeInvoked () {
+      throw new Error(':( :( :(')
+    }
   }
   const routes = controller.routes
   expect(routes).toEqual([

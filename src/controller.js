@@ -147,10 +147,14 @@ class OrangeDragonflyController {
     do {
       actions.push(...Object.getOwnPropertyNames(obj));
     } while (obj = Object.getPrototypeOf(obj));
-    actions = actions.sort().filter(item => typeof this.prototype[item] === 'function')
+    const methodPattern = /^do(Get|Head|Post|Patch|Put|Delete|Options)(Id)?([a-zA-z0-9]+)?$/
+    actions = actions
+      .filter(item => methodPattern.test(item))
+      .filter(item => typeof this.prototype[item] === 'function')
+      .sort()
     const routes = []
     for (const action of actions) {
-      const m = action.match(/^do(Get|Head|Post|Patch|Put|Delete|Options)(Id)?([a-zA-z0-9]+)?$/)
+      const m = action.match(methodPattern)
       if (m) {
         const method = m[1].toLowerCase()
         let path = this.path
