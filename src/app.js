@@ -178,7 +178,7 @@ class OrangeDragonflyApp {
    */
   async start () {
     await this.init()
-    const server = new OrangeDragonflyWebServer(this.config.port || 8888, this.processWebServerError)
+    const server = new OrangeDragonflyWebServer(this.config.port || 8888, this.processWebServerError, this.config.host || '0.0.0.0')
     return await server.start(request => {
       return this.processRequest(request)
     })
