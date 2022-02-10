@@ -21,18 +21,19 @@ class OrangeDragonflyController {
    * Processes request
    * @param {string} action
    * @param {object} params
+   * @param {object} route
    * @return {Promise<void>}
    */
-  async run (action, params) {
+  async run (action, params, route_path) {
     try {
-      if (await this.runMiddlewares(this.beforewares, params)) {
-        if (await this.runBeforeRequest(params, action)) {
-          const content = await this[action](params)
+      if (await this.runMiddlewares(this.beforewares, params, route_path)) {
+        if (await this.runBeforeRequest(params, action, route_path)) {
+          const content = await this[action](params, route_path)
           if (typeof content !== 'undefined') {
             this.response.content = content
           }
-          if (await this.runAfterRequest(params, action)) {
-            await this.runMiddlewares(this.afterwares, params)
+          if (await this.runAfterRequest(params, action, route_path)) {
+            await this.runMiddlewares(this.afterwares, params, route_path)
           }
         }
       }
@@ -167,6 +168,17 @@ class OrangeDragonflyController {
       console.warn(`There is no routes found in controller ${this.name}`)
     }
     return routes
+  }
+
+  /**
+   * Default handler for OPTIONS requests
+   * 
+   * @param _
+   * @param {string} route_path
+   */
+  async genericOptionsAction (_, route_path) {
+    this.response.code = 204
+    this.response.addHeader('Allow', this.app.optionPaths.hasOwnProperty(route_path) ? this.app.optionPaths[route_path].map(v => v.toUpperCase()).join(', ') : '')
   }
 }
 

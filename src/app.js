@@ -27,9 +27,15 @@ class OrangeDragonflyApp {
     for (const middleware of this.middlewares) {
       this._registeredMiddlewares[middleware.name] = middleware
     }
+    this.optionPaths = {}
     for (const controller of this.controllers) {
       for (const route of controller.routes.filter(r => !!r.path)) {
-        this._router.register(route.path, [route.method], { Controller: controller, action: route.action })
+        this._router.register(route.path, [route.method], { Controller: controller, action: route.action, path: route.path })
+        if (!this.optionPaths[route.path]) {
+          this.optionPaths[route.path] = []
+          this._router.register(route.path, ['OPTIONS'], { Controller: controller, action: 'genericOptionsAction', path: route.path })
+        }
+        this.optionPaths[route.path].push(route.method)
       }
     }
     this._registeredCommands = {}
@@ -193,7 +199,7 @@ class OrangeDragonflyApp {
     const response = new OrangeDragonflyResponse()
     const route = this._router.route(request.path, request.method)
     const controller = new route.route_object.Controller(this, request, response)
-    await controller.run(route.route_object.action, route.params)
+    await controller.run(route.route_object.action, route.params, route.route_object.path)
     this.accessLog(request, response)
     return response
   }

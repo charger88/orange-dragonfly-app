@@ -21,6 +21,14 @@ test('product item html', async () => {
   expect(response.contentType).toBe('text/html')
 })
 
+test('product item options', async () => {
+  const request = new OrangeDragonflyRequest('OPTIONS', '/products/123', { 'user-agent': 'cURL/1.0.0' }, '')
+  const response = await sa.processRequest(request)
+  expect(response.code).toBe(204)
+  expect(response.headers[0].name).toBe('Allow')
+  expect(response.headers[0].value).toBe('GET')
+})
+
 test('block search middleware', async () => {
   const request = new OrangeDragonflyRequest('GET', '/products/123', { 'user-agent': 'GoogleBot/1.0.0' }, '')
   const response = await sa.processRequest(request)
