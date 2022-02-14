@@ -96,13 +96,14 @@ class OrangeDragonflyController {
    *
    * @param {string[]} middlewares
    * @param {object} params
+   * @param {string} route_path
    * @return {Promise<boolean>}
    */
-  async runMiddlewares (middlewares, params) {
+  async runMiddlewares (middlewares, params, route_path) {
     for (const middlewareClassName of middlewares) {
       const Middleware = this.app.getMiddleware(middlewareClassName)
       const mw = new Middleware(this)
-      if (!await mw.run(params)) {
+      if (!await mw.run(params, route_path)) {
         return false
       }
     }
@@ -113,9 +114,10 @@ class OrangeDragonflyController {
    * Custom code to be invoked before controller's action
    * @param {object} params
    * @param {string} action
+   * @param {string} route_path
    * @return {Promise<boolean>}
    */
-  async runBeforeRequest (params, action) {
+  async runBeforeRequest (params, action, route_path) {
     return true
   }
 
@@ -123,9 +125,10 @@ class OrangeDragonflyController {
    * Custom code to be invoked after controller's action
    * @param {object} params
    * @param {string} action
+   * @param {string} route_path
    * @return {Promise<boolean>}
    */
-  async runAfterRequest (params, action) {
+  async runAfterRequest (params, action, route_path) {
     return true
   }
 
