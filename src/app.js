@@ -227,9 +227,9 @@ class OrangeDragonflyApp {
    * Create tables for available models. Not recommended for production use.
    * @return {Promise<Array>}
    */
-  async createModelTables () {
+  async createModelTables (auto_indexes = false) {
     const Converter = OrangeDragonflyORMModelToSQL.getConverter(this.dbDriver)
-    const c = new Converter()
+    const c = new Converter(false, false, auto_indexes)
     const queries = c.convert(this.models)
     for (const q of queries) {
       await AbstractQuery.runRawSQL(q, {})
