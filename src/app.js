@@ -73,6 +73,14 @@ class OrangeDragonflyApp {
   }
 
   /**
+   * Returns true if CORS headers should be returned
+   * @return {boolean}
+   */
+  get cors () {
+    return false
+  }
+
+  /**
    * Router
    * @return {object}
    */
