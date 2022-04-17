@@ -27,6 +27,11 @@ class OrangeDragonflyController {
    */
   async run (action, params, routePath) {
     try {
+      if (this.app.cors) {
+        this.response.addHeader('Access-Control-Allow-Origin', '*')
+        this.response.addHeader('Access-Control-Allow-Headers', '*')
+        this.response.addHeader('Access-Control-Allow-Methods', this.app.optionPaths[routePath] ? this.app.optionPaths[routePath].map(v => v.toUpperCase()).join(', ') : '')
+      }
       if (['genericOptionsAction'].includes(action)) {
         await this._run(action, params, routePath)
       } else {
@@ -57,11 +62,6 @@ class OrangeDragonflyController {
     const content = await this[action](params, routePath)
     if (typeof content !== 'undefined') {
       this.response.content = content
-    }
-    if (this.app.cors) {
-      this.response.addHeader('Access-Control-Allow-Origin', '*')
-      this.response.addHeader('Access-Control-Allow-Headers', '*')
-      this.response.addHeader('Access-Control-Allow-Methods', this.app.optionPaths[routePath] ? this.app.optionPaths[routePath].map(v => v.toUpperCase()).join(', ') : '')
     }
   }
 
