@@ -36,3 +36,18 @@ test('block search middleware', async () => {
   expect(response.content).toEqual({ error: 'No, Google, you are not allowed here' })
   expect(response.contentType).toBe('application/json')
 })
+
+test('validation-passed', async () => {
+  const request = new OrangeDragonflyRequest('POST', '/products', {}, JSON.stringify({ name: 'Bagel donut' }))
+  const response = await sa.processRequest(request)
+  expect(response.code).toBe(201)
+  expect(response.content).toBe('Bagel donut is added')
+})
+
+test('validation-failed', async () => {
+  const request = new OrangeDragonflyRequest('POST', '/products', {}, JSON.stringify({ name: '' }))
+  const response = await sa.processRequest(request)
+  expect(response.code).toBe(422)
+  expect(response.contentType).toBe('application/json')
+  expect(response.content.details.name[0]).toBe('Minimal value (length) is 1. 0 provided')
+})

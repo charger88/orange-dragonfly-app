@@ -6,7 +6,6 @@ const { OrangeCommand } = require('orange-command')
  * @abstract
  */
 class OrangeDragonflyCommand extends OrangeCommand {
-
   /**
    * Command logic
    * @abstract
@@ -28,7 +27,6 @@ class OrangeDragonflyCommand extends OrangeCommand {
     command.app = app
     return await command._runAction()
   }
-
 
   /**
    * Name of the command. By default it is being generated based on commands's name (dash-case instead of camel-case).

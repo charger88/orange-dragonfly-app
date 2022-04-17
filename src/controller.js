@@ -1,4 +1,5 @@
 const { camelCaseToDashCase } = require('./helpers')
+const validate = require('orange-dragonfly-validator')
 
 /**
  * Orange Dragonfly Web abstract controller
@@ -24,21 +25,38 @@ class OrangeDragonflyController {
    * @param {object} route
    * @return {Promise<void>}
    */
-  async run (action, params, route_path) {
+  async run (action, params, routePath) {
     try {
-      if (await this.runMiddlewares(this.beforewares, params, route_path)) {
-        if (await this.runBeforeRequest(params, action, route_path)) {
-          const content = await this[action](params, route_path)
-          if (typeof content !== 'undefined') {
-            this.response.content = content
-          }
-          if (await this.runAfterRequest(params, action, route_path)) {
-            await this.runMiddlewares(this.afterwares, params, route_path)
+      if (['genericOptionsAction'].includes(action)) {
+        await this._run(action, params, routePath)
+      } else {
+        if (await this.runMiddlewares(this.beforewares, params, routePath)) {
+          if (await this._processValidation(action)) {
+            if (await this.runBeforeRequest(params, action, routePath)) {
+              await this._run(action, params, routePath)
+              if (await this.runAfterRequest(params, action, routePath)) {
+                await this.runMiddlewares(this.afterwares, params, routePath)
+              }
+            }
           }
         }
       }
     } catch (e) {
       await this.handleError(e)
+    }
+  }
+
+  /**
+   * Processes request itself (without middlewares)
+   * @param {string} action
+   * @param {object} params
+   * @param {object} route
+   * @return {Promise<void>}
+   */
+  async _run (action, params, routePath) {
+    const content = await this[action](params, routePath)
+    if (typeof content !== 'undefined') {
+      this.response.content = content
     }
   }
 
@@ -96,14 +114,14 @@ class OrangeDragonflyController {
    *
    * @param {string[]} middlewares
    * @param {object} params
-   * @param {string} route_path
+   * @param {string} routePath
    * @return {Promise<boolean>}
    */
-  async runMiddlewares (middlewares, params, route_path) {
+  async runMiddlewares (middlewares, params, routePath) {
     for (const middlewareClassName of middlewares) {
       const Middleware = this.app.getMiddleware(middlewareClassName)
       const mw = new Middleware(this)
-      if (!await mw.run(params, route_path)) {
+      if (!await mw.run(params, routePath)) {
         return false
       }
     }
@@ -114,10 +132,10 @@ class OrangeDragonflyController {
    * Custom code to be invoked before controller's action
    * @param {object} params
    * @param {string} action
-   * @param {string} route_path
+   * @param {string} routePath
    * @return {Promise<boolean>}
    */
-  async runBeforeRequest (params, action, route_path) {
+  async runBeforeRequest (params, action, routePath) {
     return true
   }
 
@@ -125,10 +143,10 @@ class OrangeDragonflyController {
    * Custom code to be invoked after controller's action
    * @param {object} params
    * @param {string} action
-   * @param {string} route_path
+   * @param {string} routePath
    * @return {Promise<boolean>}
    */
-  async runAfterRequest (params, action, route_path) {
+  async runAfterRequest (params, action, routePath) {
     return true
   }
 
@@ -146,11 +164,12 @@ class OrangeDragonflyController {
    * @return {{method: {string}, path: {string}, action: {string}}[]}
    */
   static get routes () {
-    let actions = [];
-    let obj = new this();
+    let actions = []
+    let obj = new this()
     do {
-      actions.push(...Object.getOwnPropertyNames(obj));
-    } while (obj = Object.getPrototypeOf(obj));
+      actions.push(...Object.getOwnPropertyNames(obj))
+      obj = Object.getPrototypeOf(obj)
+    } while (obj)
     const methodPattern = /^do(Get|Head|Post|Patch|Put|Delete|Options)(Id)?([a-zA-z0-9]+)?$/
     actions = actions
       .filter(item => methodPattern.test(item))
@@ -175,13 +194,52 @@ class OrangeDragonflyController {
 
   /**
    * Default handler for OPTIONS requests
-   * 
+   *
    * @param _
-   * @param {string} route_path
+   * @param {string} routePath
    */
-  async genericOptionsAction (_, route_path) {
+  async genericOptionsAction (_, routePath) {
     this.response.code = 204
-    this.response.addHeader('Allow', this.app.optionPaths.hasOwnProperty(route_path) ? this.app.optionPaths[route_path].map(v => v.toUpperCase()).join(', ') : '')
+    this.response.addHeader('Allow', this.app.optionPaths[routePath] ? this.app.optionPaths[routePath].map(v => v.toUpperCase()).join(', ') : '')
+  }
+
+  /**
+   * Tries to run validation
+   * @param {string} action Name of the action
+   * @returns {Promise<boolean>}
+   */
+  async _processValidation (action) {
+    const validationAction = `validate${action.slice(2)}`
+    if (this[validationAction]) {
+      const [querySchema, bodySchema] = await this[validationAction]()
+      try {
+        if (querySchema) {
+          validate(querySchema, this.request.query)
+        }
+        if (bodySchema) {
+          validate(bodySchema, this.request.body)
+        }
+      } catch (e) {
+        this.processPotentialValidationException(e)
+        return false
+      }
+    }
+    return true
+  }
+
+  /**
+   * Tries to handle validation exception
+   * @param {Error} e Exception
+   * @param {number} error_code HTTP code to return if error is ValidationException
+   * @param {string} error_message Error message to return if error is ValidationException
+   * @param {?string} details Shows if validation details should be returned and what should be the name of the parameter containing them
+   */
+  processPotentialValidationException (e, error_code = 422, error_message = 'Validation error', details = 'details') {
+    if (e.constructor.name === 'ValidationException') {
+      this.response.setError(error_code, error_message, details ? { [details]: e.info } : null)
+    } else {
+      throw e
+    }
   }
 }
 

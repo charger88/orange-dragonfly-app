@@ -1,6 +1,6 @@
 {
   "name": "orange-dragonfly-app",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "description": "Orange.Dragofly.App - web application",
   "main": "index.js",
   "scripts": {
@@ -40,6 +40,7 @@
     "orange-dragonfly-orm": "^0.7.30",
     "orange-dragonfly-orm-model-to-sql": "^0.7.0",
     "orange-dragonfly-router": "^0.1.1",
+    "orange-dragonfly-validator": "^0.7.8",
     "orange-dragonfly-web-server": "^0.1.0"
   }
 }

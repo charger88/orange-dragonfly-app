@@ -32,6 +32,22 @@ class ProductsController extends OrangeDragonflyController {
   async doGetId (params) {
     return this.render(`<h1><a href="/products">Products</a> &rarr; Product</h1><p>ID: ${params.id}</p>`)
   }
+
+  async validatePost () {
+    return [null, {
+      name: {
+        required: true,
+        type: 'string',
+        min: 1,
+        max: 32
+      }
+    }]
+  }
+
+  async doPost () {
+    this.response.code = 201
+    return `${this.request.body.name} is added`
+  }
 }
 
 class BlockBotsMiddleware extends OrangeDragonflyMiddleware {
