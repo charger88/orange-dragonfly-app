@@ -16,6 +16,7 @@ class OrangeDragonflyController {
     this.app = app
     this.request = request
     this.response = response
+    this._variables = {}
   }
 
   /**
@@ -248,6 +249,28 @@ class OrangeDragonflyController {
     } else {
       throw e
     }
+  }
+
+  /**
+   * Sets controller's variable
+   * @param {string} key Variable name
+   * @param {*} value Variable value
+   */
+  setVar (key, value) {
+    this._variables[key] = value
+  }
+
+  /**
+   * Gets controller's variable
+   * @param {string} key Variable name
+   * @throws {Error} If variable not found
+   * @returns {*} Variable value
+   */
+  getVar (key) {
+    if (!(key in this._variables)) {
+      throw new Error(`Controller variable "${key}" is not defined`)
+    }
+    return this._variables[key]
   }
 }
 
