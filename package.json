@@ -1,6 +1,6 @@
 {
   "name": "orange-dragonfly-app",
-  "version": "0.1.15",
+  "version": "0.1.16",
   "description": "Orange.Dragofly.App - web application",
   "main": "index.js",
   "scripts": {

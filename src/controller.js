@@ -75,7 +75,12 @@ class OrangeDragonflyController {
    * @return {Promise<void>}
    */
   async handleError (e) {
-    throw e
+    try {
+      this.processPotentialValidationException(e)
+    } catch (_) {
+      console.error(e)
+      this.response.setError(500, 'Internal server error')
+    }
   }
 
   /**
