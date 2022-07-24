@@ -28,8 +28,11 @@ class OrangeDragonflyController {
   async run (action, params, routePath) {
     try {
       if (this.app.cors) {
-        this.response.addHeader('Access-Control-Allow-Origin', '*')
-        this.response.addHeader('Access-Control-Allow-Headers', '*')
+        this.response.addHeader('Access-Control-Allow-Origin', (this.app.cors === true || !this.app.cors.allow_origin) ? '*' : this.app.cors.allow_origin)
+        this.response.addHeader('Access-Control-Allow-Headers', (this.app.cors === true || !this.app.cors.allow_headers) ? '*' : this.app.cors.allow_headers)
+        if (this.app.cors !== true && this.app.cors.expose_headers) {
+          this.response.addHeader('Access-Control-Expose-Headers', this.app.cors.expose_headers)
+        }
         this.response.addHeader('Access-Control-Allow-Methods', this.app.optionPaths[routePath] ? this.app.optionPaths[routePath].map(v => v.toUpperCase()).join(', ') : '')
       }
       if (['genericOptionsAction'].includes(action)) {
